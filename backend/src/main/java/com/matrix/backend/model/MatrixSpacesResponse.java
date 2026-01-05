@@ -8,6 +8,9 @@ public class MatrixSpacesResponse {
     private List<double[]> columnSpace;
     private List<double[]> nullSpace;
 
+    public MatrixSpacesResponse() {
+    }
+    
     public MatrixSpacesResponse(
             List<double[]> rowSpace,
             List<double[]> columnSpace,

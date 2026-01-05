@@ -5,9 +5,11 @@ import com.matrix.backend.model.MatrixResponse;
 import com.matrix.backend.model.MatrixSpacesResponse;
 import com.matrix.backend.service.TraceService;
 import com.matrix.backend.service.TransposeService;
+import com.matrix.backend.service.AdjointService;
 import com.matrix.backend.service.DeterminantService;
 import com.matrix.backend.service.RankService;
 import com.matrix.backend.service.InverseService;
+import com.matrix.backend.service.MatrixIndexService;
 import com.matrix.backend.service.MatrixSpacesService;
 
 import org.springframework.web.bind.annotation.*;
@@ -22,15 +24,17 @@ public class MatrixController {
     private final DeterminantService determinantService;
     private final RankService rankService;
     private final InverseService inverseService;
-     private final MatrixSpacesService matrixSpacesService;
-
-
+    private final MatrixSpacesService matrixSpacesService;
+    private final AdjointService adjointService;
+    private final MatrixIndexService matrixIndexService;
     public MatrixController(
             TraceService traceService,
             TransposeService transposeService,
             DeterminantService determinantService,
             RankService rankService,
-            InverseService inverseService,MatrixSpacesService matrixSpacesService) {
+            InverseService inverseService,MatrixSpacesService matrixSpacesService,
+            AdjointService adjointService,
+            MatrixIndexService matrixIndexService ) {
 
         this.traceService = traceService;
         this.transposeService = transposeService;
@@ -38,6 +42,8 @@ public class MatrixController {
         this.rankService = rankService;
         this.inverseService = inverseService;
         this.matrixSpacesService = matrixSpacesService;
+        this.adjointService = adjointService;
+        this.matrixIndexService=matrixIndexService;
     }
 
     // Submit matrix (no storage, just echo)
@@ -140,4 +146,52 @@ public MatrixResponse getInverse(@RequestBody MatrixRequest request) {
                 request.getMatrix()
         );
     }
+@PostMapping("/adjoint")
+public MatrixResponse getAdjoint(@RequestBody MatrixRequest request) {
+
+    MatrixResponse response = new MatrixResponse();
+
+    response.setAdjoint(
+        adjointService.calculateAdjoint(
+            request.getRows(),
+            request.getMatrix()
+        )
+    );
+
+    return response;
 }
+@PostMapping("/row")
+public MatrixResponse getRow(@RequestBody MatrixRequest request) {
+
+    MatrixResponse response = new MatrixResponse();
+
+    response.setRow(
+        matrixIndexService.getRow(
+            request.getRows(),
+            request.getCols(),
+            request.getMatrix(),
+            request.getIndex()
+        )
+    );
+
+    return response;
+}
+
+@PostMapping("/column")
+public MatrixResponse getColumn(@RequestBody MatrixRequest request) {
+
+    MatrixResponse response = new MatrixResponse();
+
+    response.setColumn(
+        matrixIndexService.getColumn(
+            request.getRows(),
+            request.getCols(),
+            request.getMatrix(),
+            request.getIndex()
+        )
+    );
+
+    return response;
+}
+}
+

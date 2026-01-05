@@ -33,7 +33,14 @@ export const getRank = (data) =>
 export const getInverse = (data) =>
   handleResponse(axios.post(`${BASE_URL}/inverse`, data));
 
+export const getAdjoint = (data) =>
+  handleResponse(axios.post(`${BASE_URL}/adjoint`, data));
 
 export const getSpaces = (data) =>
-  handleResponse(axios.post(`${BASE_URL}/spaces`, data)); 
+  handleResponse(axios.post(`${BASE_URL}/spaces`, data));
 
+export const getRow = (data) =>
+  handleResponse(axios.post(`${BASE_URL}/row`, data));
+
+export const getColumn = (data) =>
+  handleResponse(axios.post(`${BASE_URL}/column`, data));

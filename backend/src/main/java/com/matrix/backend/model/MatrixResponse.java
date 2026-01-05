@@ -18,6 +18,12 @@ public class MatrixResponse {
     // Matrix results (1D – row major)
     private double[] transpose;
     private double[] inverse;
+    private double[] adjoint;
+
+
+    private double[] row;
+    private double[] column;
+
 
     public MatrixResponse() {
     }
@@ -97,4 +103,29 @@ public class MatrixResponse {
     public void setInverse(double[] inverse) {
         this.inverse = inverse;
     }
+    public double[] getAdjoint() {
+    return adjoint;
+    }
+
+    public void setAdjoint(double[] adjoint) {
+        this.adjoint = adjoint;
+    }
+
+
+    public double[] getRow() {
+        return row;
+    }
+
+    public void setRow(double[] row) {
+        this.row = row;
+    }
+
+    public double[] getColumn() {
+        return column;
+    }
+
+    public void setColumn(double[] column) {
+        this.column = column;
+    }
+
 }
