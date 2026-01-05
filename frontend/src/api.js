@@ -32,3 +32,8 @@ export const getRank = (data) =>
 
 export const getInverse = (data) =>
   handleResponse(axios.post(`${BASE_URL}/inverse`, data));
+
+
+export const getSpaces = (data) =>
+  handleResponse(axios.post(`${BASE_URL}/spaces`, data)); 
+

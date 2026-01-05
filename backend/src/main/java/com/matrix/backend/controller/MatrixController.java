@@ -2,11 +2,13 @@ package com.matrix.backend.controller;
 
 import com.matrix.backend.model.MatrixRequest;
 import com.matrix.backend.model.MatrixResponse;
+import com.matrix.backend.model.MatrixSpacesResponse;
 import com.matrix.backend.service.TraceService;
 import com.matrix.backend.service.TransposeService;
 import com.matrix.backend.service.DeterminantService;
 import com.matrix.backend.service.RankService;
 import com.matrix.backend.service.InverseService;
+import com.matrix.backend.service.MatrixSpacesService;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -20,19 +22,22 @@ public class MatrixController {
     private final DeterminantService determinantService;
     private final RankService rankService;
     private final InverseService inverseService;
+     private final MatrixSpacesService matrixSpacesService;
+
 
     public MatrixController(
             TraceService traceService,
             TransposeService transposeService,
             DeterminantService determinantService,
             RankService rankService,
-            InverseService inverseService) {
+            InverseService inverseService,MatrixSpacesService matrixSpacesService) {
 
         this.traceService = traceService;
         this.transposeService = transposeService;
         this.determinantService = determinantService;
         this.rankService = rankService;
         this.inverseService = inverseService;
+        this.matrixSpacesService = matrixSpacesService;
     }
 
     // Submit matrix (no storage, just echo)
@@ -127,7 +132,12 @@ public MatrixResponse getInverse(@RequestBody MatrixRequest request) {
 
     return response;
 }
-
-
-
+ @PostMapping("/spaces")
+    public MatrixSpacesResponse getMatrixSpaces(@RequestBody MatrixRequest request) {
+        return matrixSpacesService.computeSpaces(
+                request.getRows(),
+                request.getCols(),
+                request.getMatrix()
+        );
+    }
 }
