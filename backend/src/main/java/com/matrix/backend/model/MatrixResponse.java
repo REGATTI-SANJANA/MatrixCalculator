@@ -13,32 +13,23 @@ public class MatrixResponse {
     private Double trace;
     private Double determinant;
     private Integer rank;
-     private String message;
+    private String message;
 
-    // Matrix results (1D – row major)
+    // Matrix results
     private double[] transpose;
     private double[] inverse;
     private double[] adjoint;
 
-
+    // Row / Column
     private double[] row;
     private double[] column;
 
+    // ===== SUB MATRIX =====
+    private double[] subMatrix;
+    private Integer subRows;
+    private Integer subCols;
 
-    public MatrixResponse() {
-    }
-
-    // ---------- Getters & Setters ----------
-   
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
+    // ===== Getters & Setters =====
 
     public double[] getOriginalMatrix() {
         return originalMatrix;
@@ -103,14 +94,14 @@ public class MatrixResponse {
     public void setInverse(double[] inverse) {
         this.inverse = inverse;
     }
+
     public double[] getAdjoint() {
-    return adjoint;
+        return adjoint;
     }
 
     public void setAdjoint(double[] adjoint) {
         this.adjoint = adjoint;
     }
-
 
     public double[] getRow() {
         return row;
@@ -128,4 +119,35 @@ public class MatrixResponse {
         this.column = column;
     }
 
+    public double[] getSubMatrix() {
+        return subMatrix;
+    }
+
+    public void setSubMatrix(double[] subMatrix) {
+        this.subMatrix = subMatrix;
+    }
+
+    public Integer getSubRows() {
+        return subRows;
+    }
+
+    public void setSubRows(Integer subRows) {
+        this.subRows = subRows;
+    }
+
+    public Integer getSubCols() {
+        return subCols;
+    }
+
+    public void setSubCols(Integer subCols) {
+        this.subCols = subCols;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

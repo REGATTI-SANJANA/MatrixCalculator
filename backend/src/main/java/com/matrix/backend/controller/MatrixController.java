@@ -1,19 +1,7 @@
 package com.matrix.backend.controller;
 
-import com.matrix.backend.model.MatrixRequest;
-import com.matrix.backend.model.MatrixResponse;
-import com.matrix.backend.model.MatrixSpacesResponse;
-import com.matrix.backend.service.TraceService;
-import com.matrix.backend.service.TransposeService;
-import com.matrix.backend.service.AdjointService;
-import com.matrix.backend.service.DeterminantService;
-import com.matrix.backend.service.RankService;
-import com.matrix.backend.service.InverseService;
-import com.matrix.backend.service.MatrixIndexService;
-import com.matrix.backend.service.MatrixSpacesService;
-import com.matrix.backend.model.EigenResponse;
-import com.matrix.backend.service.EigenSolverService;
-
+import com.matrix.backend.model.*;
+import com.matrix.backend.service.*;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -31,31 +19,33 @@ public class MatrixController {
     private final AdjointService adjointService;
     private final MatrixIndexService matrixIndexService;
     private final EigenSolverService eigenSolverService;
+    private final SubMatrixService subMatrixService;
 
-   public MatrixController(
-        TraceService traceService,
-        TransposeService transposeService,
-        DeterminantService determinantService,
-        RankService rankService,
-        InverseService inverseService,
-        MatrixSpacesService matrixSpacesService,
-        AdjointService adjointService,
-        MatrixIndexService matrixIndexService,
-        EigenSolverService eigenSolverService
-) {
-    this.traceService = traceService;
-    this.transposeService = transposeService;
-    this.determinantService = determinantService;
-    this.rankService = rankService;
-    this.inverseService = inverseService;
-    this.matrixSpacesService = matrixSpacesService;
-    this.adjointService = adjointService;
-    this.matrixIndexService = matrixIndexService;
-    this.eigenSolverService = eigenSolverService;
-}
+    public MatrixController(
+            TraceService traceService,
+            TransposeService transposeService,
+            DeterminantService determinantService,
+            RankService rankService,
+            InverseService inverseService,
+            MatrixSpacesService matrixSpacesService,
+            AdjointService adjointService,
+            MatrixIndexService matrixIndexService,
+            EigenSolverService eigenSolverService,
+            SubMatrixService subMatrixService
+    ) {
+        this.traceService = traceService;
+        this.transposeService = transposeService;
+        this.determinantService = determinantService;
+        this.rankService = rankService;
+        this.inverseService = inverseService;
+        this.matrixSpacesService = matrixSpacesService;
+        this.adjointService = adjointService;
+        this.matrixIndexService = matrixIndexService;
+        this.eigenSolverService = eigenSolverService;
+        this.subMatrixService = subMatrixService;
+    }
 
-
-    // Submit matrix (no storage, just echo)
+    // ===== SUBMIT =====
     @PostMapping("/submit")
     public MatrixResponse submitMatrix(@RequestBody MatrixRequest request) {
         MatrixResponse response = new MatrixResponse();
@@ -65,27 +55,23 @@ public class MatrixController {
         return response;
     }
 
-    // Trace
-   @PostMapping("/trace")
-public MatrixResponse getTrace(@RequestBody MatrixRequest request) {
-    MatrixResponse response = new MatrixResponse();
+    // ===== TRACE =====
+    @PostMapping("/trace")
+    public MatrixResponse getTrace(@RequestBody MatrixRequest request) {
+        if (request.getRows() != request.getCols()) {
+            throw new RuntimeException("Trace not possible for rectangular matrix");
+        }
 
-    if (request.getRows() != request.getCols()) {
-        throw new RuntimeException("Trace not possible for rectangular matrix");
+        MatrixResponse response = new MatrixResponse();
+        response.setTrace(traceService.trace(
+                request.getRows(),
+                request.getCols(),
+                request.getMatrix()
+        ));
+        return response;
     }
 
-    double trace = traceService.trace(
-        request.getRows(),
-        request.getCols(),
-        request.getMatrix()
-    );
-
-    response.setTrace(trace);
-    return response;
-}
-
-
-    // Determinant
+    // ===== DETERMINANT =====
     @PostMapping("/determinant")
     public MatrixResponse getDeterminant(@RequestBody MatrixRequest request) {
         MatrixResponse response = new MatrixResponse();
@@ -99,7 +85,7 @@ public MatrixResponse getTrace(@RequestBody MatrixRequest request) {
         return response;
     }
 
-    // Transpose
+    // ===== TRANSPOSE =====
     @PostMapping("/transpose")
     public MatrixResponse getTranspose(@RequestBody MatrixRequest request) {
         MatrixResponse response = new MatrixResponse();
@@ -113,7 +99,7 @@ public MatrixResponse getTrace(@RequestBody MatrixRequest request) {
         return response;
     }
 
-    // Rank
+    // ===== RANK =====
     @PostMapping("/rank")
     public MatrixResponse getRank(@RequestBody MatrixRequest request) {
         MatrixResponse response = new MatrixResponse();
@@ -127,93 +113,118 @@ public MatrixResponse getTrace(@RequestBody MatrixRequest request) {
         return response;
     }
 
-    // Inverse
-@PostMapping("/inverse")
-public MatrixResponse getInverse(@RequestBody MatrixRequest request) {
-
-    MatrixResponse response = new MatrixResponse();
-
-    try {
-        response.setInverse(
-            inverseService.calculateInverse(
-                request.getRows(),
-                request.getCols(),
-                request.getMatrix()
-            )
-        );
-    } catch (ArithmeticException | IllegalArgumentException ex) {
-        response.setMessage("Inverse is not possible because determinant is zero");
+    // ===== INVERSE =====
+    @PostMapping("/inverse")
+    public MatrixResponse getInverse(@RequestBody MatrixRequest request) {
+        MatrixResponse response = new MatrixResponse();
+        try {
+            response.setInverse(
+                    inverseService.calculateInverse(
+                            request.getRows(),
+                            request.getCols(),
+                            request.getMatrix()
+                    )
+            );
+        } catch (Exception e) {
+            response.setMessage("Inverse not possible (determinant is zero)");
+        }
+        return response;
     }
 
-    return response;
-}
- @PostMapping("/spaces")
-    public MatrixSpacesResponse getMatrixSpaces(@RequestBody MatrixRequest request) {
+    // ===== ADJOINT =====
+    @PostMapping("/adjoint")
+    public MatrixResponse getAdjoint(@RequestBody MatrixRequest request) {
+        MatrixResponse response = new MatrixResponse();
+        response.setAdjoint(
+                adjointService.calculateAdjoint(
+                        request.getRows(),
+                        request.getMatrix()
+                )
+        );
+        return response;
+    }
+
+    // ===== ROW =====
+    @PostMapping("/row")
+    public MatrixResponse getRow(@RequestBody MatrixRequest request) {
+        MatrixResponse response = new MatrixResponse();
+        response.setRow(
+                matrixIndexService.getRow(
+                        request.getRows(),
+                        request.getCols(),
+                        request.getMatrix(),
+                        request.getIndex()
+                )
+        );
+        return response;
+    }
+
+    // ===== COLUMN =====
+    @PostMapping("/column")
+    public MatrixResponse getColumn(@RequestBody MatrixRequest request) {
+        MatrixResponse response = new MatrixResponse();
+        response.setColumn(
+                matrixIndexService.getColumn(
+                        request.getRows(),
+                        request.getCols(),
+                        request.getMatrix(),
+                        request.getIndex()
+                )
+        );
+        return response;
+    }
+
+    // ===== SPACES =====
+    @PostMapping("/spaces")
+    public MatrixSpacesResponse getSpaces(@RequestBody MatrixRequest request) {
         return matrixSpacesService.computeSpaces(
                 request.getRows(),
                 request.getCols(),
                 request.getMatrix()
         );
     }
-@PostMapping("/adjoint")
-public MatrixResponse getAdjoint(@RequestBody MatrixRequest request) {
+
+    // ===== EIGEN =====
+    @PostMapping("/eigen")
+    public EigenResponse getEigen(@RequestBody MatrixRequest request) {
+        return EigenSolverService.computeEigen(
+                request.getRows(),
+                request.getCols(),
+                request.getMatrix()
+        );
+    }
+
+    // ===== SUB MATRIX =====
+    @PostMapping("/submatrix")
+public MatrixResponse getSubMatrix(@RequestBody MatrixRequest request) {
+
+    if (request.getStartRow() == null ||
+        request.getEndRow() == null ||
+        request.getStartCol() == null ||
+        request.getEndCol() == null) {
+        throw new IllegalArgumentException("Submatrix indices cannot be null");
+    }
 
     MatrixResponse response = new MatrixResponse();
 
-    response.setAdjoint(
-        adjointService.calculateAdjoint(
-            request.getRows(),
-            request.getMatrix()
-        )
-    );
-
-    return response;
-}
-@PostMapping("/row")
-public MatrixResponse getRow(@RequestBody MatrixRequest request) {
-
-    MatrixResponse response = new MatrixResponse();
-
-    response.setRow(
-        matrixIndexService.getRow(
+    double[] sub = subMatrixService.getSubMatrix(
             request.getRows(),
             request.getCols(),
             request.getMatrix(),
-            request.getIndex()
-        )
+            request.getStartRow(),
+            request.getEndRow(),
+            request.getStartCol(),
+            request.getEndCol()
     );
+
+    int subRows = request.getEndRow() - request.getStartRow() + 1;
+    int subCols = request.getEndCol() - request.getStartCol() + 1;
+
+    response.setSubMatrix(sub);
+    response.setSubRows(subRows);
+    response.setSubCols(subCols);
 
     return response;
 }
 
-@PostMapping("/column")
-public MatrixResponse getColumn(@RequestBody MatrixRequest request) {
-
-    MatrixResponse response = new MatrixResponse();
-
-    response.setColumn(
-        matrixIndexService.getColumn(
-            request.getRows(),
-            request.getCols(),
-            request.getMatrix(),
-            request.getIndex()
-        )
-    );
-
-    return response;
 }
-
-@PostMapping("/eigen")
-public EigenResponse getEigen(@RequestBody MatrixRequest request) {
-    return EigenSolverService.computeEigen(
-            request.getRows(),
-            request.getCols(),
-            request.getMatrix()
-    );
-}
-
-
-
-
-}
-
