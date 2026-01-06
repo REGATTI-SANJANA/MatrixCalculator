@@ -20,6 +20,7 @@ public class MatrixController {
     private final MatrixIndexService matrixIndexService;
     private final EigenSolverService eigenSolverService;
     private final SubMatrixService subMatrixService;
+    private final MatrixMultiplicationService multiplicationService;
 
     public MatrixController(
             TraceService traceService,
@@ -31,7 +32,8 @@ public class MatrixController {
             AdjointService adjointService,
             MatrixIndexService matrixIndexService,
             EigenSolverService eigenSolverService,
-            SubMatrixService subMatrixService
+            SubMatrixService subMatrixService,
+            MatrixMultiplicationService multiplicationService
     ) {
         this.traceService = traceService;
         this.transposeService = transposeService;
@@ -43,6 +45,7 @@ public class MatrixController {
         this.matrixIndexService = matrixIndexService;
         this.eigenSolverService = eigenSolverService;
         this.subMatrixService = subMatrixService;
+        this.multiplicationService=multiplicationService;
     }
 
     // ===== SUBMIT =====
@@ -223,6 +226,33 @@ public MatrixResponse getSubMatrix(@RequestBody MatrixRequest request) {
     response.setSubMatrix(sub);
     response.setSubRows(subRows);
     response.setSubCols(subCols);
+
+    return response;
+}
+@PostMapping("/multiply")
+public MatrixMultiplyResponse multiply(@RequestBody MatrixMultiplyRequest request) {
+
+    MatrixMultiplyResponse response = new MatrixMultiplyResponse();
+
+    if (request.getColsA() != request.getRowsB()) {
+        response.setMessage(
+            "Matrix multiplication not possible: columns of A must equal rows of B"
+        );
+        return response;
+    }
+
+    double[] result = multiplicationService.multiply(
+            request.getRowsA(),
+            request.getColsA(),
+            request.getMatrixA(),
+            request.getRowsB(),
+            request.getColsB(),
+            request.getMatrixB()
+    );
+
+    response.setRows(request.getRowsA());
+    response.setCols(request.getColsB());
+    response.setProduct(result);
 
     return response;
 }
