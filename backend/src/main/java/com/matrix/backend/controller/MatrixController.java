@@ -11,6 +11,9 @@ import com.matrix.backend.service.RankService;
 import com.matrix.backend.service.InverseService;
 import com.matrix.backend.service.MatrixIndexService;
 import com.matrix.backend.service.MatrixSpacesService;
+import com.matrix.backend.model.EigenResponse;
+import com.matrix.backend.service.EigenSolverService;
+
 
 import org.springframework.web.bind.annotation.*;
 
@@ -27,24 +30,30 @@ public class MatrixController {
     private final MatrixSpacesService matrixSpacesService;
     private final AdjointService adjointService;
     private final MatrixIndexService matrixIndexService;
-    public MatrixController(
-            TraceService traceService,
-            TransposeService transposeService,
-            DeterminantService determinantService,
-            RankService rankService,
-            InverseService inverseService,MatrixSpacesService matrixSpacesService,
-            AdjointService adjointService,
-            MatrixIndexService matrixIndexService ) {
+    private final EigenSolverService eigenSolverService;
 
-        this.traceService = traceService;
-        this.transposeService = transposeService;
-        this.determinantService = determinantService;
-        this.rankService = rankService;
-        this.inverseService = inverseService;
-        this.matrixSpacesService = matrixSpacesService;
-        this.adjointService = adjointService;
-        this.matrixIndexService=matrixIndexService;
-    }
+   public MatrixController(
+        TraceService traceService,
+        TransposeService transposeService,
+        DeterminantService determinantService,
+        RankService rankService,
+        InverseService inverseService,
+        MatrixSpacesService matrixSpacesService,
+        AdjointService adjointService,
+        MatrixIndexService matrixIndexService,
+        EigenSolverService eigenSolverService
+) {
+    this.traceService = traceService;
+    this.transposeService = transposeService;
+    this.determinantService = determinantService;
+    this.rankService = rankService;
+    this.inverseService = inverseService;
+    this.matrixSpacesService = matrixSpacesService;
+    this.adjointService = adjointService;
+    this.matrixIndexService = matrixIndexService;
+    this.eigenSolverService = eigenSolverService;
+}
+
 
     // Submit matrix (no storage, just echo)
     @PostMapping("/submit")
@@ -193,5 +202,18 @@ public MatrixResponse getColumn(@RequestBody MatrixRequest request) {
 
     return response;
 }
+
+@PostMapping("/eigen")
+public EigenResponse getEigen(@RequestBody MatrixRequest request) {
+    return EigenSolverService.computeEigen(
+            request.getRows(),
+            request.getCols(),
+            request.getMatrix()
+    );
+}
+
+
+
+
 }
 
