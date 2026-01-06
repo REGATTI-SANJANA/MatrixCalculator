@@ -259,7 +259,6 @@
 // export default App;
 
 
-
 import React, { useState } from "react";
 import {
   submitMatrix,
@@ -289,7 +288,7 @@ const App = () => {
   const [cols, setCols] = useState("");
   const [elements, setElements] = useState("");
 
-  /* SECOND MATRIX (for multiplication) */
+  /* Second Matrix */
   const [rowsB, setRowsB] = useState("");
   const [colsB, setColsB] = useState("");
   const [elementsB, setElementsB] = useState("");
@@ -299,6 +298,9 @@ const App = () => {
   const [result, setResult] = useState(null);
   const [spaces, setSpaces] = useState(null);
   const [error, setError] = useState("");
+
+  /* Index-based */
+  const [index, setIndex] = useState("");
 
   const parseMatrix = (str) =>
     str.trim().split(/\s+/).map(Number);
@@ -319,6 +321,7 @@ const App = () => {
       setResult(null);
       setSpaces(null);
       setError("");
+      setIndex("");
     } catch (e) {
       setError(e.message);
     }
@@ -330,8 +333,9 @@ const App = () => {
     setResult(null);
     setSpaces(null);
     setError("");
+    setIndex("");
 
-    if (op === "multiply") return;
+    if (["row", "column", "multiply"].includes(op)) return;
 
     const data = { rows: Number(rows), cols: Number(cols), matrix };
 
@@ -354,40 +358,61 @@ const App = () => {
     }
   };
 
-  /* ================= MULTIPLICATION ================= */
- const handleMultiply = async () => {
-  if (!rowsB || !colsB || !elementsB) {
-    setError("Please enter second matrix completely");
-    setResult(null);
-    return;
-  }
+  /* ================= ROW / COLUMN ================= */
+  const handleIndexOperation = async () => {
+    if (index === "") {
+      setError("Enter index");
+      return;
+    }
 
-  const data = {
-    rowsA: Number(rows),
-    colsA: Number(cols),
-    matrixA: matrix,
-    rowsB: Number(rowsB),
-    colsB: Number(colsB),
-    matrixB: parseMatrix(elementsB)
+    const data = {
+      rows: Number(rows),
+      cols: Number(cols),
+      matrix,
+      index: Number(index)
+    };
+
+    try {
+      setError("");
+      if (operation === "row") setResult((await getRow(data)).row);
+      if (operation === "column") setResult((await getColumn(data)).column);
+    } catch (e) {
+      setError(e.message);
+    }
   };
 
-  try {
-    const res = await multiplyMatrices(data);
-
-    // ⭐ ONLY IMPORTANT CHECK ⭐
-    if (res.message) {
-      setError(res.message);
+  /* ================= MULTIPLICATION ================= */
+  const handleMultiply = async () => {
+    if (!rowsB || !colsB || !elementsB) {
+      setError("Please enter second matrix completely");
       setResult(null);
       return;
     }
 
-    setResult(res);
-    setError("");
-  } catch (e) {
-    setError("Backend connection failed");
-  }
-};
+    const data = {
+      rowsA: Number(rows),
+      colsA: Number(cols),
+      matrixA: matrix,
+      rowsB: Number(rowsB),
+      colsB: Number(colsB),
+      matrixB: parseMatrix(elementsB)
+    };
 
+    try {
+      const res = await multiplyMatrices(data);
+
+      if (res.message) {
+        setError(res.message);
+        setResult(null);
+        return;
+      }
+
+      setResult(res);
+      setError("");
+    } catch {
+      setError("Backend connection failed");
+    }
+  };
 
   return (
     <div className="app">
@@ -417,10 +442,23 @@ const App = () => {
             <option value="rank">Rank</option>
             <option value="inverse">Inverse</option>
             <option value="adjoint">Adjoint</option>
+            <option value="row">Individual Row</option>
+            <option value="column">Individual Column</option>
             <option value="multiply">Matrix Multiplication</option>
             <option value="eigen">Eigen Values & Vectors</option>
             <option value="spaces">Matrix Spaces</option>
           </select>
+
+          {(operation === "row" || operation === "column") && (
+            <>
+              <input
+                placeholder="Index (0-based)"
+                value={index}
+                onChange={(e) => setIndex(e.target.value)}
+              />
+              <button onClick={handleIndexOperation}>Get</button>
+            </>
+          )}
 
           {operation === "multiply" && (
             <>
