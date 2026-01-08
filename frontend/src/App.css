@@ -1,253 +1,214 @@
-/* body {
-  background: #f4f6f9;
-  font-family: "Segoe UI", sans-serif;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap');
 
-.app {
-  max-width: 800px;
-  margin: auto;
-  padding: 30px;
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 30px;
-}
-
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-}
-
-label {
-  display: block;
-  margin-top: 10px;
-  font-weight: 600;
-}
-
-input,
-textarea,
-select {
-  width: 100%;
-  padding: 8px;
-  margin-top: 5px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-button {
-  margin-top: 15px;
-  padding: 10px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #1d4ed8;
-}
-
-.matrix-container {
-  margin-top: 20px;
-  text-align: center;
-}
-
-.matrix-table {
-  margin: auto;
-  border-collapse: collapse;
-}
-
-.matrix-table td {
-  border: 1px solid #ccc;
-  padding: 10px 15px;
-  min-width: 50px;
-  font-weight: 600;
-}
-
-.error {
-  color: red;
-  font-weight: bold;
-} */
-
-
-
-/* Modern Professional Matrix Calculator CSS */
 :root {
-  --primary: #2563eb;
-  --primary-hover: #1d4ed8;
-  --bg-color: #f8fafc;
-  --card-bg: #ffffff;
-  --text-main: #1e293b;
-  --text-muted: #64748b;
-  --border-color: #e2e8f0;
-  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-  --error: #ef4444;
-  --success: #10b981;
+  --primary: #4361ee;
+  --secondary: #3f37c9;
+  --accent: #4cc9f0;
+  --bg: #0b0e14;
+  --glass: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --text: #e0e6ed;
+  --text-dim: #94a3b8;
+  --error: #ff4d6d;
+}
+
+* {
+  box-sizing: border-box;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
-  background: var(--bg-color);
-  font-family: 'Inter', -apple-system, sans-serif;
-  color: var(--text-main);
-  line-height: 1.5;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+.app-container {
+  min-height: 100vh;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+}
+
+/* Mesmerizing Background Blobs */
+.background-blobs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.blob {
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(67, 97, 238, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: move 20s infinite alternate;
+}
+
+.blob:nth-child(2) {
+  background: radial-gradient(circle, rgba(76, 201, 240, 0.1) 0%, transparent 70%);
+  right: -100px;
+  bottom: -100px;
+  animation-delay: -5s;
+}
+
+@keyframes move {
+  from { transform: translate(0, 0); }
+  to { transform: translate(100px, 100px); }
+}
+
+/* Glassmorphism Components */
+.glass-card {
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+.glass-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.glass-header h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -2px;
   margin: 0;
 }
 
-.app {
-  max-width: 1000px;
-  margin: 40px auto;
-  padding: 0 20px;
+.glass-header h1 span {
+  color: var(--primary);
+  text-shadow: 0 0 20px rgba(67, 97, 238, 0.5);
 }
 
-h1 {
-  font-weight: 800;
-  font-size: 2.25rem;
-  color: #0f172a;
-  text-align: center;
-  margin-bottom: 40px;
-  letter-spacing: -0.025em;
-}
-
-h2, h3 {
-  color: var(--text-main);
-  font-weight: 700;
-  margin-top: 0;
-}
-
-/* Card Styling */
-.card {
-  background: var(--card-bg);
-  padding: 24px;
-  border-radius: 12px;
-  margin-bottom: 24px;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow);
-  transition: transform 0.2s ease;
-}
-
-/* Input Styles */
-label {
-  display: block;
-  font-size: 0.875rem;
-  margin-bottom: 6px;
-  color: var(--text-muted);
+.glass-header p {
+  color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 4px;
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
 }
 
+/* Grid Layout */
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+h3 {
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-top: 0;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Inputs & UI Elements */
 input, textarea, select {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 0.8rem 1rem;
+  color: white;
+  font-family: 'Fira Code', monospace;
   width: 100%;
-  padding: 10px 12px;
-  background-color: #fff;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: all 0.2s;
-  box-sizing: border-box;
+  margin-bottom: 1rem;
 }
 
-input:focus, textarea:focus, select:focus {
+input:focus, select:focus {
   outline: none;
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
 }
 
-textarea {
-  min-height: 100px;
-  font-family: 'Courier New', Courier, monospace;
-}
-
-/* Button Styling */
 button {
-  width: 100%;
-  padding: 12px 20px;
   background: var(--primary);
   color: white;
   border: none;
-  border-radius: 8px;
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
   font-weight: 600;
-  font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
 }
 
 button:hover {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -10px var(--primary);
+  background: var(--secondary);
 }
 
-button:active {
-  transform: translateY(0);
-}
-
-/* Professional Matrix Display (The Bracket Look) */
-.matrix-box {
-  color: #dd4a1d; /* Light blue monospace text */
-  padding: 20px;
-  border-radius: 8px;
-  margin: 15px 0;
-  overflow-x: auto;
-  position: relative;
-}
-
-.matrix-text {
-  font-family: 'Fira Code', 'Roboto Mono', monospace;
-  font-size: 1.1rem;
-  line-height: 1.6;
-  white-space: pre;
-  margin: 0;
-  display: inline-block;
-  text-align: center;
+.btn-action {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   width: 100%;
 }
 
-/* Error Messages */
-.error-message {
-  background: #fef2f2;
-  color: var(--error);
-  padding: 12px;
+/* Matrix Styling */
+.matrix-container {
+  font-family: 'Fira Code', monospace;
+  display: inline-grid;
+  padding: 1rem;
+  border-left: 2px solid var(--accent);
+  border-right: 2px solid var(--accent);
   border-radius: 8px;
-  border: 1px solid #fee2e2;
-  font-size: 0.875rem;
-  text-align: center;
+  gap: 10px;
 }
 
-/* Flex layout for side-by-side inputs (Matrix A & B) */
-.input-section {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
-  margin-bottom: 30px;
+/* Animations */
+.anim-in {
+  animation: slideUp 0.5s ease forwards;
 }
 
-/* Helper spacing for Row/Column/Partition inputs */
-.card input {
-  margin-bottom: 10px;
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Partition Grid styling */
-.partition-container {
+.input-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-top: 15px;
+  gap: 10px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 640px) {
-  .app {
-    padding: 15px;
-  }
-  .partition-container {
-    grid-template-columns: 1fr;
-  }
+.full-width { grid-column: span 2; }
+
+/* Result Box */
+.error-box {
+  background: rgba(255, 77, 109, 0.1);
+  border: 1px solid var(--error);
+  color: var(--error);
+  padding: 1rem;
+  border-radius: 12px;
+  margin: 1rem 0;
+}
+
+.results-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-container { padding: 1rem; }
+  .glass-header h1 { font-size: 2rem; }
 }

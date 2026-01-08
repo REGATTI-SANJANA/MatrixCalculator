@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   submitMatrix, getTrace, getDeterminant, getTranspose, getRank,
@@ -35,6 +34,12 @@ const App = () => {
   const parseMatrix = (str) => str.trim().split(/\s+/).map(Number);
   const parseList = (str) => str ? str.split(',').map(x => parseInt(x.trim())).filter(n => !isNaN(n)) : [];
 
+  useEffect(() => {
+    setIndices("");
+    setResult(null);
+    setError("");
+  }, [operation]);
+
   const handleSubmit = async () => {
     try {
       const data = { rows: Number(rows), cols: Number(cols), matrix: parseMatrix(elements) };
@@ -44,15 +49,8 @@ const App = () => {
     } catch (e) { setError(e.message); }
   };
 
-  useEffect(() => {
-    setIndices("");
-    setResult(null);
-    setError("");
-  }, [operation]);
-
   const handleOperation = async (op) => {
     setOperation(op);
-    // State reset is now handled by the useEffect above for consistency
     if (["row", "column", "multiply", "partition", "submatrix"].includes(op)) return;
 
     const data = { rows: Number(rows), cols: Number(cols), matrix };
@@ -74,14 +72,9 @@ const App = () => {
         }
       })();
 
-      if (res && res.message) {
-        setError(res.message);
-      } else {
-        setResult(res);
-      }
-    } catch (e) { 
-      setError(e.message); 
-    }
+      if (res && res.message) setError(res.message);
+      else setResult(res);
+    } catch (e) { setError(e.message); }
   };
 
   const handleIndexOp = async () => {
@@ -126,68 +119,106 @@ const App = () => {
   };
 
   return (
-    <div className="app">
-      <h1>Matrix Calculator</h1>
-      <MatrixInput rows={rows} cols={cols} elements={elements} setRows={setRows} setCols={setCols} setElements={setElements} onSubmit={handleSubmit} />
-      <MatrixDisplay matrix={matrix} rows={rows} cols={cols} title="Matrix A" />
+    <div className="app-container">
+      <div className="background-blobs">
+        <div className="blob"></div>
+        <div className="blob"></div>
+      </div>
 
-      {matrix && (
-        <div className="card">
-          <h2>Operation</h2>
-          <select value={operation} onChange={(e) => handleOperation(e.target.value)}>
-            <option value="">-- Select --</option>
-            <option value="trace">Trace</option>
-            <option value="determinant">Determinant</option>
-            <option value="inverse">Inverse</option>
-            <option value="transpose">Transpose</option>
-            <option value="rank">Rank</option>
-            <option value="adjoint">Adjoint</option>
-            <option value="row">Extract Rows</option>
-            <option value="column">Extract Columns</option>
-            <option value="submatrix">Sub-Matrix</option>
-            <option value="multiply">Multiplication</option>
-            <option value="partition">Multi-Partition</option>
-            <option value="eigen">Eigenvalues/Vectors</option>
-            <option value="spaces">Matrix Spaces</option>
-          </select>
+      <header className="glass-header">
+        <h1>Matrix<span>Core</span></h1>
+        <p>Advanced Linear Algebra Suite</p>
+      </header>
 
-          {(operation === "row" || operation === "column") && (
-            <div className="input-group">
-              <input placeholder="Indices e.g. 0,2" value={indices} onChange={e => setIndices(e.target.value)} />
-              <button onClick={handleIndexOp}>Extract</button>
+      <main className="content-grid">
+        <section className="input-section glass-card">
+          <h3><i className="fas fa-edit"></i> Configure Matrix A</h3>
+          <MatrixInput 
+            rows={rows} cols={cols} elements={elements} 
+            setRows={setRows} setCols={setCols} setElements={setElements} 
+            onSubmit={handleSubmit} 
+          />
+        </section>
+
+        <section className="display-section glass-card">
+          <MatrixDisplay matrix={matrix} rows={rows} cols={cols} title="Primary Matrix A" />
+        </section>
+
+        {matrix && (
+          <section className="ops-section glass-card">
+            <h3><i className="fas fa-cogs"></i> Operations</h3>
+            <div className="select-wrapper">
+              <select value={operation} onChange={(e) => handleOperation(e.target.value)}>
+                <option value="">-- Select Computation --</option>
+                <optgroup label="Properties">
+                  <option value="trace">Trace</option>
+                  <option value="determinant">Determinant</option>
+                  <option value="rank">Rank</option>
+                </optgroup>
+                <optgroup label="Transformations">
+                  <option value="inverse">Inverse</option>
+                  <option value="transpose">Transpose</option>
+                  <option value="adjoint">Adjoint</option>
+                </optgroup>
+                <optgroup label="Extraction">
+                  <option value="row">Extract Rows</option>
+                  <option value="column">Extract Columns</option>
+                  <option value="submatrix">Sub-Matrix</option>
+                </optgroup>
+                <optgroup label="Advanced">
+                  <option value="multiply">Multiplication</option>
+                  <option value="partition">Multi-Partition</option>
+                  <option value="eigen">Eigenvalues/Vectors</option>
+                  <option value="spaces">Matrix Spaces</option>
+                </optgroup>
+              </select>
             </div>
-          )}
 
-          {operation === "submatrix" && (
-            <div className="input-group">
-              <input placeholder="Start Row" onChange={e => setSubRef({...subRef, sR: e.target.value})} />
-              <input placeholder="End Row" onChange={e => setSubRef({...subRef, eR: e.target.value})} />
-              <input placeholder="Start Col" onChange={e => setSubRef({...subRef, sC: e.target.value})} />
-              <input placeholder="End Col" onChange={e => setSubRef({...subRef, eC: e.target.value})} />
-              <button onClick={handleSubMatrix}>Get Submatrix</button>
-            </div>
-          )}
+            <div className="dynamic-inputs">
+              {(operation === "row" || operation === "column") && (
+                <div className="input-row anim-in">
+                  <input placeholder="Indices (e.g. 0,2)" value={indices} onChange={e => setIndices(e.target.value)} />
+                  <button className="btn-action" onClick={handleIndexOp}>Execute</button>
+                </div>
+              )}
 
-          {operation === "multiply" && (
-            <div className="input-group">
-              <input placeholder="Rows B" value={rowsB} onChange={e => setRowsB(e.target.value)} />
-              <input placeholder="Cols B" value={colsB} onChange={e => setColsB(e.target.value)} />
-              <textarea placeholder="Elements B" value={elementsB} onChange={e => setElementsB(e.target.value)} />
-              <button onClick={handleMultiply}>Multiply</button>
-            </div>
-          )}
+              {operation === "submatrix" && (
+                <div className="input-grid anim-in">
+                  <input placeholder="Start Row" onChange={e => setSubRef({...subRef, sR: e.target.value})} />
+                  <input placeholder="End Row" onChange={e => setSubRef({...subRef, eR: e.target.value})} />
+                  <input placeholder="Start Col" onChange={e => setSubRef({...subRef, sC: e.target.value})} />
+                  <input placeholder="End Col" onChange={e => setSubRef({...subRef, eC: e.target.value})} />
+                  <button className="btn-action full-width" onClick={handleSubMatrix}>Extract Submatrix</button>
+                </div>
+              )}
 
-          {operation === "partition" && (
-            <div className="input-group">
-              <input placeholder="Row Splits" value={rowSplits} onChange={e => setRowSplits(e.target.value)} />
-              <input placeholder="Col Splits" value={colSplits} onChange={e => setColSplits(e.target.value)} />
-              <button onClick={handlePartition}>Partition</button>
+              {operation === "multiply" && (
+                <div className="input-stack anim-in">
+                  <div className="dim-row">
+                    <input placeholder="Rows B" value={rowsB} onChange={e => setRowsB(e.target.value)} />
+                    <input placeholder="Cols B" value={colsB} onChange={e => setColsB(e.target.value)} />
+                  </div>
+                  <textarea placeholder="Elements B (space separated)" value={elementsB} onChange={e => setElementsB(e.target.value)} />
+                  <button className="btn-action" onClick={handleMultiply}>Compute A × B</button>
+                </div>
+              )}
+
+              {operation === "partition" && (
+                <div className="input-row anim-in">
+                  <input placeholder="Row Splits (e.g. 1)" value={rowSplits} onChange={e => setRowSplits(e.target.value)} />
+                  <input placeholder="Col Splits (e.g. 1)" value={colSplits} onChange={e => setColSplits(e.target.value)} />
+                  <button className="btn-action" onClick={handlePartition}>Split</button>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      )}
-      <ResultSection operation={operation} result={result} rows={rows} cols={cols} error={error} indices={indices}/>
-      {spaces && <SpacesDisplay spaces={spaces} />}
+          </section>
+        )}
+
+        <section className="result-section">
+          <ResultSection operation={operation} result={result} rows={rows} cols={cols} error={error} indices={indices}/>
+          {spaces && <SpacesDisplay spaces={spaces} />}
+        </section>
+      </main>
     </div>
   );
 };
