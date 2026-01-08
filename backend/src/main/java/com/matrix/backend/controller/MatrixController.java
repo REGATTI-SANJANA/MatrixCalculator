@@ -21,6 +21,7 @@ public class MatrixController {
     private final EigenSolverService eigenSolverService;
     private final SubMatrixService subMatrixService;
     private final MatrixMultiplicationService multiplicationService;
+    private final PartitionMatrixService partitionMatrixService;
 
     public MatrixController(
             TraceService traceService,
@@ -33,7 +34,8 @@ public class MatrixController {
             MatrixIndexService matrixIndexService,
             EigenSolverService eigenSolverService,
             SubMatrixService subMatrixService,
-            MatrixMultiplicationService multiplicationService
+            MatrixMultiplicationService multiplicationService,
+            PartitionMatrixService partitionMatrixService
     ) {
         this.traceService = traceService;
         this.transposeService = transposeService;
@@ -46,6 +48,7 @@ public class MatrixController {
         this.eigenSolverService = eigenSolverService;
         this.subMatrixService = subMatrixService;
         this.multiplicationService=multiplicationService;
+        this.partitionMatrixService= partitionMatrixService;
     }
 
     // ===== SUBMIT =====
@@ -256,5 +259,18 @@ public MatrixMultiplyResponse multiply(@RequestBody MatrixMultiplyRequest reques
 
     return response;
 }
+
+@PostMapping("/partition")
+public PartitionMatrixResponse partitionMatrix(@RequestBody MatrixRequest request) {
+
+    return partitionMatrixService.partition(
+            request.getRows(),
+            request.getCols(),
+            request.getMatrix(),
+            request.getIndex(),      // row split
+            request.getStartCol()    // column split
+    );
+}
+
 
 }
