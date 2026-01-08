@@ -151,34 +151,41 @@ public class MatrixController {
     }
 
     // ===== ROW =====
-    @PostMapping("/row")
-    public MatrixResponse getRow(@RequestBody MatrixRequest request) {
+    @PostMapping("/rows")
+    public MatrixResponse getRows(@RequestBody MatrixRequest request) {
+
         MatrixResponse response = new MatrixResponse();
-        response.setRow(
-                matrixIndexService.getRow(
+
+        response.setRowsList(
+                matrixIndexService.getRows(
                         request.getRows(),
                         request.getCols(),
                         request.getMatrix(),
-                        request.getIndex()
+                        request.getRowIndices()   // List<Integer>
                 )
         );
+
         return response;
     }
 
-    // ===== COLUMN =====
-    @PostMapping("/column")
-    public MatrixResponse getColumn(@RequestBody MatrixRequest request) {
+    // ===== MULTIPLE COLUMNS =====
+    @PostMapping("/columns")
+    public MatrixResponse getColumns(@RequestBody MatrixRequest request) {
+
         MatrixResponse response = new MatrixResponse();
-        response.setColumn(
-                matrixIndexService.getColumn(
+
+        response.setColumnsList(
+                matrixIndexService.getColumns(
                         request.getRows(),
                         request.getCols(),
                         request.getMatrix(),
-                        request.getIndex()
+                        request.getColumnIndices() // List<Integer>
                 )
         );
+
         return response;
     }
+
 
     // ===== SPACES =====
     @PostMapping("/spaces")
@@ -260,6 +267,18 @@ public MatrixMultiplyResponse multiply(@RequestBody MatrixMultiplyRequest reques
     return response;
 }
 
+// @PostMapping("/partition")
+// public PartitionMatrixResponse partitionMatrix(@RequestBody MatrixRequest request) {
+
+//     return partitionMatrixService.partition(
+//             request.getRows(),
+//             request.getCols(),
+//             request.getMatrix(),
+//             request.getIndex(),      // row split
+//             request.getStartCol()    // column split
+//     );
+// }
+
 @PostMapping("/partition")
 public PartitionMatrixResponse partitionMatrix(@RequestBody MatrixRequest request) {
 
@@ -267,10 +286,9 @@ public PartitionMatrixResponse partitionMatrix(@RequestBody MatrixRequest reques
             request.getRows(),
             request.getCols(),
             request.getMatrix(),
-            request.getIndex(),      // row split
-            request.getStartCol()    // column split
+            request.getRowSplits(),
+            request.getColSplits()
     );
 }
-
 
 }
